@@ -1,125 +1,234 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'models/app_settings.dart';
+import 'models/client.dart';
+import 'models/project.dart';
+import 'models/work_session.dart';
+import 'providers/data_provider.dart';
+import 'providers/settings_provider.dart';
+import 'providers/timer_provider.dart';
+import 'screens/client_detail_screen.dart';
+import 'screens/client_list_screen.dart';
+import 'screens/dashboard_screen.dart';
+import 'screens/finance_screen.dart';
+import 'screens/project_detail_screen.dart';
+import 'screens/settings_screen.dart';
+import 'seed_data.dart';
+import 'theme.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+
+  Hive.registerAdapter(AppSettingsAdapter());
+  Hive.registerAdapter(WorkSessionAdapter());
+  Hive.registerAdapter(ProjectAdapter());
+  Hive.registerAdapter(ClientAdapter());
+
+  final settingsBox = await Hive.openBox('settings');
+  final clientsBox = await Hive.openBox('clients');
+
+  seedIfNeeded(settingsBox, clientsBox);
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider(settingsBox)),
+        ChangeNotifierProvider(create: (_) => DataProvider(clientsBox)),
+        ChangeNotifierProvider(create: (_) => TimerProvider()),
+      ],
+      child: const FreelanceHubApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class FreelanceHubApp extends StatelessWidget {
+  const FreelanceHubApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'FreelanceHub',
+      debugShowCheckedModeBanner: false,
+      theme: appTheme,
+      home: const MainShell(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class MainShell extends StatefulWidget {
+  const MainShell({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MainShell> createState() => _MainShellState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+class _MainShellState extends State<MainShell> {
+  int _selectedIndex = 0;
+  final GlobalKey<NavigatorState> _clientsNavigatorKey =
+      GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        final handled = _handleBack();
+        if (!handled) {
+          SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            DashboardScreen(
+              onOpenClient: _openClientFromOutside,
+              onOpenProject: _openProjectFromOutside,
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Navigator(
+              key: _clientsNavigatorKey,
+              onGenerateRoute: (settings) {
+                if (settings.name == '/client') {
+                  final clientId = settings.arguments as String;
+                  return CupertinoPageRoute(
+                    settings: settings,
+                    builder: (_) => ClientDetailScreen(clientId: clientId),
+                  );
+                }
+                if (settings.name == '/project') {
+                  final args = settings.arguments as Map<String, String>;
+                  return CupertinoPageRoute(
+                    settings: settings,
+                    builder: (_) => ProjectDetailScreen(
+                      clientId: args['clientId']!,
+                      projectId: args['projectId']!,
+                    ),
+                  );
+                }
+                return CupertinoPageRoute(
+                    settings: settings,
+                    builder: (_) => const ClientListScreen());
+              },
             ),
+            const FinanceScreen(),
+            const SettingsScreen(),
           ],
         ),
+        bottomNavigationBar: _BottomNav(
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  bool _handleBack() {
+    if (_selectedIndex == 1) {
+      final nav = _clientsNavigatorKey.currentState;
+      if (nav != null && nav.canPop()) {
+        nav.pop();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void _openClientFromOutside(String clientId) {
+    setState(() => _selectedIndex = 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _clientsNavigatorKey.currentState
+          ?.pushNamed('/client', arguments: clientId);
+    });
+  }
+
+  void _openProjectFromOutside(String clientId, String projectId) {
+    setState(() => _selectedIndex = 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _clientsNavigatorKey.currentState?.pushNamed(
+        '/project',
+        arguments: {'clientId': clientId, 'projectId': projectId},
+      );
+    });
+  }
+}
+
+class _BottomNav extends StatelessWidget {
+  const _BottomNav({required this.currentIndex, required this.onTap});
+
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    Widget navIcon(IconData icon, bool active) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: active ? kBlack : kTextMuted),
+          const SizedBox(height: 4),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: active ? kLime : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: kWhite,
+        border: Border(top: BorderSide(color: kBorder, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 12,
+            offset: Offset(0, -4),
+          ),
+        ],
+      ),
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: BottomNavigationBar(
+        currentIndex: currentIndex,
+        onTap: onTap,
+        items: [
+          BottomNavigationBarItem(
+            icon: navIcon(Icons.dashboard_outlined, currentIndex == 0),
+            label: 'DASHBOARD',
+          ),
+          BottomNavigationBarItem(
+            icon: navIcon(Icons.people_outline, currentIndex == 1),
+            label: 'CLIENTS',
+          ),
+          BottomNavigationBarItem(
+            icon: navIcon(Icons.bar_chart_outlined, currentIndex == 2),
+            label: 'FINANCE',
+          ),
+          BottomNavigationBarItem(
+            icon: navIcon(Icons.settings_outlined, currentIndex == 3),
+            label: 'SETTINGS',
+          ),
+        ],
+      ),
     );
   }
 }
