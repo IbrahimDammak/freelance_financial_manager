@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../models/payment_record.dart';
 import '../models/project.dart';
 import '../providers/data_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/timer_provider.dart';
 import '../sheets/log_session_sheet.dart';
+import '../sheets/record_payment_sheet.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/progress_bar.dart';
@@ -137,6 +139,34 @@ class ProjectDetailScreen extends StatelessWidget {
                         ),
                       ),
                     ],
+                    if (currentProject.remaining > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: OutlinedButton.icon(
+                          onPressed: () => showModalBottomSheet<void>(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (_) => RecordPaymentSheet(
+                              clientId: client.id,
+                              projectId: currentProject.id,
+                              projectName: currentProject.name,
+                              currentRemaining: currentProject.remaining,
+                              currency: settings.currency,
+                            ),
+                          ),
+                          icon: const Icon(Icons.add_rounded, size: 18),
+                          label: const Text('Record Payment'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: kGreen,
+                            side: BorderSide(color: kGreen.withOpacity(0.4)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            minimumSize: const Size(double.infinity, 44),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -250,6 +280,33 @@ class ProjectDetailScreen extends StatelessWidget {
                   ],
                 ),
               ),
+              if (currentProject.payments.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Builder(
+                  builder: (context) {
+                    final sortedPayments = [...currentProject.payments]
+                      ..sort((a, b) => b.date.compareTo(a.date));
+                    return Container(
+                      decoration: kCardDecoration(),
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SectionLabel(text: 'PAYMENT HISTORY'),
+                          const SizedBox(height: 8),
+                          ...sortedPayments.map(
+                            (p) => _PaymentRow(
+                              payment: p,
+                              currency: settings.currency,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
               if (currentProject.notes.isNotEmpty) ...[
                 const SizedBox(height: 10),
                 Container(
@@ -414,6 +471,50 @@ class ProjectDetailScreen extends StatelessWidget {
               timerProvider.startTimer(clientId, project.id, project.name);
             },
             child: Text(isOwnRunning ? 'Stop & Save' : '▶ Start'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaymentRow extends StatelessWidget {
+  const _PaymentRow({required this.payment, required this.currency});
+
+  final PaymentRecord payment;
+  final String currency;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: kGreen.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check_rounded, size: 16, color: kGreen),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  payment.note.isNotEmpty ? payment.note : 'Payment received',
+                  style: kStyleBodyBold,
+                ),
+                Text(payment.date, style: kStyleCaption),
+              ],
+            ),
+          ),
+          Text(
+            '+ ${fmtCurrency(payment.amount, currency)}',
+            style: kStyleBodyBold.copyWith(color: kGreen),
           ),
         ],
       ),

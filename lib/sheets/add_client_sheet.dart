@@ -4,8 +4,11 @@ import 'package:uuid/uuid.dart';
 
 import '../models/client.dart';
 import '../providers/data_provider.dart';
+import '../providers/settings_provider.dart';
 import '../theme.dart';
 import '../utils.dart';
+import '../widgets/category_selector.dart';
+import '../widgets/section_label.dart';
 
 Future<void> showAddClientSheet(BuildContext context) async {
   await showModalBottomSheet<void>(
@@ -30,7 +33,7 @@ class _AddClientSheetBodyState extends State<_AddClientSheetBody> {
   final _emailCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
-  String _type = 'website';
+  String? _selectedCategory;
 
   @override
   void dispose() {
@@ -44,6 +47,9 @@ class _AddClientSheetBodyState extends State<_AddClientSheetBody> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = context.watch<SettingsProvider>();
+    final categories = settingsProvider.serviceCategories;
+    _selectedCategory ??= categories.first;
     final insets = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       decoration: const BoxDecoration(
@@ -110,17 +116,17 @@ class _AddClientSheetBodyState extends State<_AddClientSheetBody> {
                     decoration: const InputDecoration(labelText: 'PHONE'),
                   ),
                   const SizedBox(height: 12),
-                  Text('CLIENT TYPE'.toUpperCase(), style: kStyleLabel),
+                  const SectionLabel(text: 'Primary Service *'),
                   const SizedBox(height: 8),
-                  SegmentedButton<String>(
-                    segments: const [
-                      ButtonSegment(
-                          value: 'website', label: Text('🌐 Website')),
-                      ButtonSegment(
-                          value: 'graphic', label: Text('🎨 Graphic Design')),
-                    ],
-                    selected: {_type},
-                    onSelectionChanged: (s) => setState(() => _type = s.first),
+                  CategorySelector(
+                    categories: categories,
+                    selected: _selectedCategory,
+                    onSelected: (cat) => setState(() => _selectedCategory = cat),
+                    onAddCustom: (newCat) async {
+                      await settingsProvider.addServiceCategory(newCat);
+                      if (!mounted) return;
+                      setState(() => _selectedCategory = newCat);
+                    },
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -155,7 +161,7 @@ class _AddClientSheetBodyState extends State<_AddClientSheetBody> {
       ..company = _companyCtrl.text.trim()
       ..email = _emailCtrl.text.trim()
       ..phone = _phoneCtrl.text.trim()
-      ..type = _type
+      ..primaryCategory = _selectedCategory ?? 'Web Development'
       ..avatar = initialsFrom(name)
       ..createdAt = todayStr()
       ..notes = _notesCtrl.text.trim()

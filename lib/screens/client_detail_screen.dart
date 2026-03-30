@@ -14,6 +14,19 @@ import '../widgets/section_label.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/status_badge.dart';
 
+Color _categoryColor(String category) {
+  const colors = [
+    kBlue,
+    kPink,
+    kGreen,
+    kOrange,
+    kYellow,
+    Color(0xFF8b5cf6),
+    Color(0xFF06b6d4),
+  ];
+  return colors[category.hashCode.abs() % colors.length];
+}
+
 class ClientDetailScreen extends StatelessWidget {
   const ClientDetailScreen({super.key, required this.clientId});
 
@@ -57,33 +70,28 @@ class ClientDetailScreen extends StatelessWidget {
                               if (client.company.trim().isNotEmpty)
                                 Text(client.company, style: kStyleBody),
                               const SizedBox(height: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color:
-                                      (client.type == 'website' ? kBlue : kPink)
-                                          .withOpacity(0.10),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: (client.type == 'website'
-                                            ? kBlue
-                                            : kPink)
-                                        .withOpacity(0.25),
+                              Builder(builder: (_) {
+                                final categoryColor =
+                                    _categoryColor(client.primaryCategory);
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: categoryColor.withOpacity(0.10),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: categoryColor.withOpacity(0.25),
+                                    ),
                                   ),
-                                ),
-                                child: Text(
-                                  client.type == 'website'
-                                      ? '🌐 WEBSITE'
-                                      : '🎨 GRAPHIC DESIGN',
-                                  style: kStyleCaption.copyWith(
-                                    color: client.type == 'website'
-                                        ? kBlue
-                                        : kPink,
-                                    fontWeight: FontWeight.w700,
+                                  child: Text(
+                                    client.primaryCategory.toUpperCase(),
+                                    style: kStyleCaption.copyWith(
+                                      color: categoryColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
-                                ),
-                              ),
+                                );
+                              }),
                             ],
                           ),
                         ),

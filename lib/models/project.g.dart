@@ -20,7 +20,7 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..id = fields[0] as String
       ..name = fields[1] as String
       ..status = fields[2] as String
-      ..type = fields[3] as String
+      ..category = fields[3] as String
       ..startDate = fields[4] as String
       ..deadline = fields[5] as String
       ..pricingType = fields[6] as String
@@ -34,13 +34,14 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..maintenanceActive = fields[14] as bool
       ..services = (fields[15] as List).cast<String>()
       ..sessions = (fields[16] as List).cast<WorkSession>()
-      ..notes = fields[17] as String;
+      ..notes = fields[17] as String
+      ..payments = (fields[18] as List).cast<PaymentRecord>();
   }
 
   @override
   void write(BinaryWriter writer, Project obj) {
     writer
-      ..writeByte(18)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -48,7 +49,7 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..writeByte(2)
       ..write(obj.status)
       ..writeByte(3)
-      ..write(obj.type)
+      ..write(obj.category)
       ..writeByte(4)
       ..write(obj.startDate)
       ..writeByte(5)
@@ -76,7 +77,9 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..writeByte(16)
       ..write(obj.sessions)
       ..writeByte(17)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(18)
+      ..write(obj.payments);
   }
 
   @override

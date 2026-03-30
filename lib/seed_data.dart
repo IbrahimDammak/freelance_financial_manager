@@ -26,7 +26,7 @@ void seedIfNeeded(Box settingsBox, Box clientsBox) {
       ..id = const Uuid().v4()
       ..name = 'Sarah Mitchell'
       ..company = 'Bloom Studio'
-      ..type = 'website'
+      ..primaryCategory = 'Web Development'
       ..email = 'sarah@bloom.co'
       ..phone = '+1 555-0101'
       ..avatar = 'SM'
@@ -37,7 +37,7 @@ void seedIfNeeded(Box settingsBox, Box clientsBox) {
           ..id = const Uuid().v4()
           ..name = 'Portfolio Redesign'
           ..status = 'active'
-          ..type = 'website'
+          ..category = 'Web Development'
           ..startDate = activeStart
           ..deadline = activeDeadline
           ..pricingType = 'fixed'
@@ -68,7 +68,7 @@ void seedIfNeeded(Box settingsBox, Box clientsBox) {
       ..id = const Uuid().v4()
       ..name = 'James Okafor'
       ..company = 'Kafor Brands'
-      ..type = 'graphic'
+      ..primaryCategory = 'Graphic Design'
       ..email = 'james@kafor.ng'
       ..phone = '+234 812 000 1234'
       ..avatar = 'JO'
@@ -79,7 +79,7 @@ void seedIfNeeded(Box settingsBox, Box clientsBox) {
           ..id = const Uuid().v4()
           ..name = 'Brand Identity Pack'
           ..status = 'completed'
-          ..type = 'graphic'
+          ..category = 'Graphic Design'
           ..startDate = completedStart
           ..deadline = completedDeadline
           ..pricingType = 'fixed'

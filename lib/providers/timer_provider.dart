@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/work_session.dart';
+import '../services/notification_scheduler.dart';
 import '../utils.dart';
 
 class TimerConflictException implements Exception {
@@ -38,6 +39,10 @@ class TimerProvider extends ChangeNotifier {
       elapsedSeconds += 1;
       notifyListeners();
     });
+    
+    // Schedule 4-hour timer warning
+    NotificationScheduler().scheduleTimerWarning(projectName);
+    
     notifyListeners();
   }
 
@@ -63,6 +68,10 @@ class TimerProvider extends ChangeNotifier {
     startTime = null;
     elapsedSeconds = 0;
     _ticker = null;
+    
+    // Cancel timer warning
+    NotificationScheduler().cancelTimerWarning();
+    
     notifyListeners();
 
     return session;
@@ -77,6 +86,10 @@ class TimerProvider extends ChangeNotifier {
     startTime = null;
     elapsedSeconds = 0;
     _ticker = null;
+    
+    // Cancel timer warning
+    NotificationScheduler().cancelTimerWarning();
+    
     notifyListeners();
   }
 

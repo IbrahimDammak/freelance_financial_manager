@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 
+import 'payment_record.dart';
 import 'work_session.dart';
 
 part 'project.g.dart';
@@ -16,7 +17,7 @@ class Project extends HiveObject {
   late String status;
 
   @HiveField(3)
-  late String type;
+  late String category;
 
   @HiveField(4)
   late String startDate;
@@ -59,6 +60,9 @@ class Project extends HiveObject {
 
   @HiveField(17)
   late String notes;
+
+  @HiveField(18)
+  List<PaymentRecord> payments = [];
 
   void recomputeLoggedHours() {
     loggedHours =

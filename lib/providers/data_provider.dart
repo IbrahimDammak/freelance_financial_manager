@@ -1,17 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
+import '../models/app_settings.dart';
 import '../models/client.dart';
+import '../models/payment_record.dart';
 import '../models/project.dart';
 import '../models/work_session.dart';
+import '../services/notification_scheduler.dart';
 import '../utils.dart';
 
 class DataProvider extends ChangeNotifier {
-  DataProvider(this._clientsBox) {
+  DataProvider(this._clientsBox, this._settingsProvider) {
     reload();
   }
 
   final Box _clientsBox;
+  final dynamic _settingsProvider; // SettingsProvider (avoid circular import)
 
   final List<Client> _clients = [];
   bool hasError = false;
@@ -81,6 +86,7 @@ class DataProvider extends ChangeNotifier {
     if (client == null) return;
     client.projects.add(project);
     await _persist();
+    await _syncNotifications();
   }
 
   Future<void> updateProjectStatus(
@@ -89,8 +95,24 @@ class DataProvider extends ChangeNotifier {
     if (client == null) return;
     final project = _findProject(client, projectId);
     if (project == null) return;
+    
+    final oldStatus = project.status;
     project.status = status;
     await _persist();
+    
+    // Event: project status changed to 'completed'
+    if (oldStatus != 'completed' && status == 'completed') {
+      try {
+        await NotificationScheduler().notifyProjectComplete(
+          projectName: project.name,
+          clientName: client.name,
+        );
+      } catch (_) {
+        // Silent fail
+      }
+    }
+    
+    await _syncNotifications();
   }
 
   Future<void> deleteProject(String clientId, String projectId) async {
@@ -98,6 +120,7 @@ class DataProvider extends ChangeNotifier {
     if (client == null) return;
     client.projects.removeWhere((project) => project.id == projectId);
     await _persist();
+    await _syncNotifications();
   }
 
   List<({Project project, Client client})> get activeProjectsSorted {
@@ -121,6 +144,50 @@ class DataProvider extends ChangeNotifier {
     project.sessions.add(session);
     project.recomputeLoggedHours();
     await _persist();
+  }
+
+  Future<void> recordPayment({
+    required String clientId,
+    required String projectId,
+    required double amount,
+    required String date,
+    required String note,
+  }) async {
+    try {
+      final client = findClient(clientId);
+      if (client == null) return;
+      final project = client.projects.firstWhere((p) => p.id == projectId);
+
+      final payment = PaymentRecord()
+        ..id = const Uuid().v4()
+        ..date = date
+        ..amount = amount
+        ..note = note;
+
+      final wasOwing = project.remaining > 0;
+
+      project.payments.add(payment);
+      project.upfront += amount;
+      project.remaining =
+          (project.remaining - amount).clamp(0.0, double.infinity);
+
+      await _persist();
+
+      if (wasOwing && project.remaining == 0) {
+        final currency = _settingsProvider.settings.currency as String;
+        await NotificationScheduler().notifyPaymentComplete(
+          projectName: project.name,
+          clientName: client.name,
+          amount: fmtCurrency(project.upfront, currency),
+          currency: currency,
+        );
+      }
+
+      await _syncNotifications();
+    } catch (e) {
+      lastError = 'Failed to record payment: $e';
+      notifyListeners();
+    }
   }
 
   double get totalCollected => _clients
@@ -149,6 +216,19 @@ class DataProvider extends ChangeNotifier {
       return client.projects.firstWhere((project) => project.id == projectId);
     } catch (_) {
       return null;
+    }
+  }
+
+  Future<void> _syncNotifications() async {
+    try {
+      // Get settings from SettingsProvider via dynamic ref
+      final settings = _settingsProvider.settings as AppSettings? ?? AppSettings();
+      await NotificationScheduler().rescheduleAll(
+        clients: _clients,
+        settings: settings,
+      );
+    } catch (_) {
+      // Keep local data mutations resilient even if notification scheduling fails.
     }
   }
 }

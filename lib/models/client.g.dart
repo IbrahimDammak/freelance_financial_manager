@@ -22,7 +22,7 @@ class ClientAdapter extends TypeAdapter<Client> {
       ..company = fields[2] as String
       ..email = fields[3] as String
       ..phone = fields[4] as String
-      ..type = fields[5] as String
+      ..primaryCategory = fields[5] as String
       ..avatar = fields[6] as String
       ..createdAt = fields[7] as String
       ..notes = fields[8] as String
@@ -44,7 +44,7 @@ class ClientAdapter extends TypeAdapter<Client> {
       ..writeByte(4)
       ..write(obj.phone)
       ..writeByte(5)
-      ..write(obj.type)
+      ..write(obj.primaryCategory)
       ..writeByte(6)
       ..write(obj.avatar)
       ..writeByte(7)

@@ -1,10 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/app_settings.dart';
 import '../providers/settings_provider.dart';
+import 'service_categories_screen.dart';
+import 'dashboard_customize_screen.dart';
+import 'export_screen.dart';
+import 'notification_settings_screen.dart';
 import '../theme.dart';
 import '../widgets/section_label.dart';
 
@@ -45,6 +50,103 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SectionLabel(text: 'PREFERENCES'),
               const SizedBox(height: 4),
               Text('Settings', style: kStyleHeading),
+              const SizedBox(height: 14),
+              const SectionLabel(text: 'DATA'),
+              Container(
+                decoration: kCardDecoration(radius: 20),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.download_rounded,
+                          color: kTextSecondary),
+                      title: Text('Export Data', style: kStyleBodyBold),
+                      subtitle: Text(
+                        'Download all data as Excel (.xlsx)',
+                        style: kStyleBody,
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded,
+                          color: kTextMuted),
+                      onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute<void>(
+                          builder: (_) => const ExportScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              const SectionLabel(text: 'YOUR SERVICES'),
+              Container(
+                decoration: kCardDecoration(radius: 20),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.category_rounded,
+                          color: kTextSecondary),
+                      title: Text('Service Categories', style: kStyleBodyBold),
+                      subtitle: Text(
+                        'Manage the types of work you offer',
+                        style: kStyleBody,
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded,
+                          color: kTextMuted),
+                      onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute<void>(
+                          builder: (_) => const ServiceCategoriesScreen(),
+                        ),
+                      ),
+                    ),
+                    const Divider(color: kBorder, height: 1),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              const SectionLabel(text: 'DASHBOARD'),
+              Container(
+                decoration: kCardDecoration(radius: 20),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading:
+                          const Icon(Icons.tune_rounded, color: kTextSecondary),
+                      title: Text('Customize Dashboard', style: kStyleBodyBold),
+                      subtitle: Text(
+                        'Reorder and show/hide sections',
+                        style: kStyleBody,
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded,
+                          color: kTextMuted),
+                      onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute<void>(
+                          builder: (_) => const DashboardCustomizeScreen(),
+                        ),
+                      ),
+                    ),
+                    const Divider(color: kBorder, height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.notifications_outlined,
+                          color: kTextSecondary),
+                      title: Text('Notifications', style: kStyleBodyBold),
+                      subtitle: Text(
+                        'Deadlines and payment reminders',
+                        style: kStyleBody,
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded,
+                          color: kTextMuted),
+                      onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute<void>(
+                          builder: (_) => const NotificationSettingsScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 14),
               Container(
                 width: double.infinity,

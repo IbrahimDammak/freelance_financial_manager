@@ -12,6 +12,19 @@ import '../widgets/avatar_widget.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/section_label.dart';
 
+Color _categoryColor(String category) {
+  const colors = [
+    kBlue,
+    kPink,
+    kGreen,
+    kOrange,
+    kYellow,
+    Color(0xFF8b5cf6),
+    Color(0xFF06b6d4),
+  ];
+  return colors[category.hashCode.abs() % colors.length];
+}
+
 class ClientListScreen extends StatelessWidget {
   const ClientListScreen({super.key});
 
@@ -147,7 +160,7 @@ class _ClientListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final typeText = client.type == 'website' ? '🌐 Web' : '🎨 Design';
+    final categoryColor = _categoryColor(client.primaryCategory);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -178,12 +191,14 @@ class _ClientListCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
-                            color: kBlue.withOpacity(0.10),
+                            color: categoryColor.withOpacity(0.10),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: kBlue.withOpacity(0.25)),
+                            border:
+                                Border.all(color: categoryColor.withOpacity(0.25)),
                           ),
-                          child: Text(typeText,
-                              style: kStyleCaption.copyWith(color: kBlue)),
+                          child: Text(client.primaryCategory,
+                              style:
+                                  kStyleCaption.copyWith(color: categoryColor)),
                         ),
                         if (client.activeCount > 0) ...[
                           const SizedBox(width: 6),

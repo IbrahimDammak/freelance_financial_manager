@@ -7,6 +7,8 @@ import '../models/project.dart';
 import '../providers/data_provider.dart';
 import '../providers/settings_provider.dart';
 import '../theme.dart';
+import '../widgets/category_selector.dart';
+import '../widgets/section_label.dart';
 
 Future<void> showAddProjectSheet(BuildContext context,
     {required String clientId}) async {
@@ -41,7 +43,7 @@ class _AddProjectSheetBodyState extends State<_AddProjectSheetBody> {
   final _servicesCtrl = TextEditingController();
   final _notesCtrl = TextEditingController();
 
-  String _type = 'website';
+  String? _selectedCategory;
   String _pricingType = 'fixed';
   bool _maintenanceActive = false;
 
@@ -71,6 +73,9 @@ class _AddProjectSheetBodyState extends State<_AddProjectSheetBody> {
 
   @override
   Widget build(BuildContext context) {
+    final settingsProvider = context.watch<SettingsProvider>();
+    final categories = settingsProvider.serviceCategories;
+    _selectedCategory ??= categories.first;
     final insets = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       decoration: const BoxDecoration(
@@ -119,17 +124,17 @@ class _AddProjectSheetBodyState extends State<_AddProjectSheetBody> {
                         : null,
                   ),
                   const SizedBox(height: 12),
-                  Text('TYPE'.toUpperCase(), style: kStyleLabel),
+                  const SectionLabel(text: 'Project Category *'),
                   const SizedBox(height: 8),
-                  SegmentedButton<String>(
-                    segments: const [
-                      ButtonSegment(
-                          value: 'website', label: Text('🌐 Website')),
-                      ButtonSegment(
-                          value: 'graphic', label: Text('🎨 Graphic Design')),
-                    ],
-                    selected: {_type},
-                    onSelectionChanged: (s) => setState(() => _type = s.first),
+                  CategorySelector(
+                    categories: categories,
+                    selected: _selectedCategory,
+                    onSelected: (cat) => setState(() => _selectedCategory = cat),
+                    onAddCustom: (newCat) async {
+                      await settingsProvider.addServiceCategory(newCat);
+                      if (!mounted) return;
+                      setState(() => _selectedCategory = newCat);
+                    },
                   ),
                   const SizedBox(height: 10),
                   TextFormField(
@@ -312,7 +317,7 @@ class _AddProjectSheetBodyState extends State<_AddProjectSheetBody> {
       ..id = const Uuid().v4()
       ..name = _nameCtrl.text.trim()
       ..status = 'active'
-      ..type = _type
+      ..category = _selectedCategory ?? 'Web Development'
       ..startDate = _startCtrl.text.trim()
       ..deadline = _deadlineCtrl.text.trim()
       ..pricingType = _pricingType

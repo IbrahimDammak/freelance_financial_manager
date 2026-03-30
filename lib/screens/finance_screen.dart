@@ -1,9 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/data_provider.dart';
 import '../providers/settings_provider.dart';
+import 'export_screen.dart';
 import '../theme.dart';
 import '../utils.dart';
 import '../widgets/avatar_widget.dart';
@@ -27,6 +29,21 @@ class FinanceScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: kBg,
+      appBar: AppBar(
+        title: const Text('Revenue'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.download_rounded),
+            tooltip: 'Export to Excel',
+            onPressed: () => Navigator.push(
+              context,
+              CupertinoPageRoute<void>(
+                builder: (_) => const ExportScreen(),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),

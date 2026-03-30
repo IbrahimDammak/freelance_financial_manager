@@ -6,17 +6,21 @@ import 'package:provider/provider.dart';
 
 import 'models/app_settings.dart';
 import 'models/client.dart';
+import 'models/payment_record.dart';
 import 'models/project.dart';
 import 'models/work_session.dart';
 import 'providers/data_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/timer_provider.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/client_detail_screen.dart';
 import 'screens/client_list_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/finance_screen.dart';
 import 'screens/project_detail_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/notification_service.dart';
+import 'services/notification_scheduler.dart';
 import 'seed_data.dart';
 import 'theme.dart';
 
@@ -26,19 +30,25 @@ Future<void> main() async {
 
   Hive.registerAdapter(AppSettingsAdapter());
   Hive.registerAdapter(WorkSessionAdapter());
+  Hive.registerAdapter(PaymentRecordAdapter());
   Hive.registerAdapter(ProjectAdapter());
   Hive.registerAdapter(ClientAdapter());
 
   final settingsBox = await Hive.openBox('settings');
   final clientsBox = await Hive.openBox('clients');
+  final notificationService = NotificationService();
+  await notificationService.init();
 
   seedIfNeeded(settingsBox, clientsBox);
+
+  final settings = settingsBox.get('app') as AppSettings?;
+  final showOnboarding = settings == null || !settings.onboardingDone;
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarBrightness: Brightness.light,
-      statusBarIconBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.light,
     ),
   );
 
@@ -46,16 +56,38 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SettingsProvider(settingsBox)),
-        ChangeNotifierProvider(create: (_) => DataProvider(clientsBox)),
+        ChangeNotifierProvider(
+          create: (context) {
+            final sp = context.read<SettingsProvider>();
+            final dp = DataProvider(clientsBox, sp);
+            
+            // Wire the notification reschedule callback
+            sp.onNotifPrefChanged = () async {
+              try {
+                final scheduler = NotificationScheduler();
+                await scheduler.rescheduleAll(
+                  clients: dp.clients,
+                  settings: sp.settings,
+                );
+              } catch (_) {
+                // Silent fail
+              }
+            };
+            
+            return dp;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => TimerProvider()),
       ],
-      child: const FreelanceHubApp(),
+      child: FreelanceHubApp(showOnboarding: showOnboarding),
     ),
   );
 }
 
 class FreelanceHubApp extends StatelessWidget {
-  const FreelanceHubApp({super.key});
+  const FreelanceHubApp({super.key, required this.showOnboarding});
+
+  final bool showOnboarding;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +95,7 @@ class FreelanceHubApp extends StatelessWidget {
       title: 'FreelanceHub',
       debugShowCheckedModeBanner: false,
       theme: appTheme,
-      home: const MainShell(),
+      home: showOnboarding ? const OnboardingScreen() : const MainShell(),
     );
   }
 }
