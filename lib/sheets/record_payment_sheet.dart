@@ -54,9 +54,8 @@ class _RecordPaymentSheetState extends State<RecordPaymentSheet> {
     final projectedRemaining =
         (widget.currentRemaining - amount).clamp(0.0, double.infinity);
     final overpay = amount > widget.currentRemaining;
-    final previewColor = overpay
-        ? kRed
-        : (projectedRemaining == 0 ? kGreen : kYellow);
+    final previewColor =
+        overpay ? kRed : (projectedRemaining == 0 ? kGreen : kYellow);
 
     return Container(
       decoration: const BoxDecoration(

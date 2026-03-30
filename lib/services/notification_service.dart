@@ -73,7 +73,8 @@ class NotificationService {
           ?.createNotificationChannel(channel4);
     }
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -95,8 +96,8 @@ class NotificationService {
 
   // ── PERMISSIONS ───────────────────────────────────────────────────────────
   Future<bool> requestPermissions() async {
-    final ios = _plugin
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final ios = _plugin.resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin>();
     final iosGranted = await ios?.requestPermissions(
           alert: true,
           badge: true,
@@ -113,15 +114,18 @@ class NotificationService {
   }
 
   // ── NOTIFICATION DETAIL BUILDERS ──────────────────────────────────────────
-  NotificationDetails _details(String androidChannelId, String androidChannelName) =>
+  NotificationDetails _details(
+          String androidChannelId, String androidChannelName) =>
       NotificationDetails(
         android: AndroidNotificationDetails(
           androidChannelId,
           androidChannelName,
-          importance: androidChannelId == _chDeadlines || androidChannelId == _chFinancial
+          importance: androidChannelId == _chDeadlines ||
+                  androidChannelId == _chFinancial
               ? Importance.high
               : Importance.defaultImportance,
-          priority: androidChannelId == _chDeadlines || androidChannelId == _chFinancial
+          priority: androidChannelId == _chDeadlines ||
+                  androidChannelId == _chFinancial
               ? Priority.high
               : Priority.defaultPriority,
           icon: '@mipmap/ic_launcher',
@@ -270,7 +274,8 @@ class NotificationService {
   }
 
   void _onTapped(NotificationResponse response) {
-    debugPrint('[NotificationService] tapped id=${response.id} payload=${response.payload}');
+    debugPrint(
+        '[NotificationService] tapped id=${response.id} payload=${response.payload}');
     // Deep-link navigation can be wired here via a GlobalKey<NavigatorState>
   }
 }

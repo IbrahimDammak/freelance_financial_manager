@@ -121,7 +121,8 @@ class _AddClientSheetBodyState extends State<_AddClientSheetBody> {
                   CategorySelector(
                     categories: categories,
                     selected: _selectedCategory,
-                    onSelected: (cat) => setState(() => _selectedCategory = cat),
+                    onSelected: (cat) =>
+                        setState(() => _selectedCategory = cat),
                     onAddCustom: (newCat) async {
                       await settingsProvider.addServiceCategory(newCat);
                       if (!mounted) return;

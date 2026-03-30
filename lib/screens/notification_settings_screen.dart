@@ -8,10 +8,12 @@ class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  State<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends State<NotificationSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +43,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Enable all notifications', style: kStyleBodyBold),
+                            Text('Enable all notifications',
+                                style: kStyleBodyBold),
                             const SizedBox(height: 4),
                             Text(
                               'Master toggle - turns off all reminders',
@@ -90,8 +93,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                                 title: 'Daily work log reminder',
                                 subtitle: 'Nudge to log your day\'s sessions',
                                 value: settings.notifyDailyLog,
-                                onChanged: (v) =>
-                                    settingsProvider.setNotifPref('dailyLog', v),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                    'dailyLog', v),
                               ),
                               if (settings.notifyDailyLog)
                                 Padding(
@@ -117,8 +120,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: kBgCardAlt,
-                                            border:
-                                                Border.all(color: kBorder),
+                                            border: Border.all(color: kBorder),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -214,25 +216,24 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                                 title: 'Outstanding payments',
                                 subtitle: 'Weekly Wednesday reminder',
                                 value: settings.notifyOutstandingWeekly,
-                                onChanged: (v) => settingsProvider
-                                    .setNotifPref('outstanding', v),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                    'outstanding', v),
                               ),
                               _NotifTile(
                                 title: 'Maintenance fee reminders',
                                 subtitle: 'Monthly recurring fees',
                                 value: settings.notifyMaintenanceMonthly,
-                                onChanged: (v) =>
-                                    settingsProvider.setNotifPref(
-                                      'maintenance',
-                                      v,
-                                    ),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                  'maintenance',
+                                  v,
+                                ),
                               ),
                               _NotifTile(
                                 title: 'No income mid-month alert',
                                 subtitle: 'Check-in if slow on cash',
                                 value: settings.notifyNoIncome,
-                                onChanged: (v) =>
-                                    settingsProvider.setNotifPref('noIncome', v),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                    'noIncome', v),
                               ),
                             ],
                           ),
@@ -258,32 +259,32 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                                 title: 'New project idle check',
                                 subtitle: 'Remind if no progress in 7 days',
                                 value: settings.notifyNewProjectIdle,
-                                onChanged: (v) => settingsProvider
-                                    .setNotifPref('newProjectIdle', v),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                    'newProjectIdle', v),
                               ),
                               _NotifTile(
                                 title: 'Idle project weekly',
                                 subtitle: 'Thursday reminder for stalled work',
                                 value: settings.notifyIdleProject,
-                                onChanged: (v) =>
-                                    settingsProvider.setNotifPref(
-                                      'idleProject',
-                                      v,
-                                    ),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                  'idleProject',
+                                  v,
+                                ),
                               ),
                               _NotifTile(
                                 title: 'Project completion',
                                 subtitle: 'Celebration when projects finish',
                                 value: settings.notifyProjectComplete,
-                                onChanged: (v) => settingsProvider
-                                    .setNotifPref('projectComplete', v),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                    'projectComplete', v),
                               ),
                               _NotifTile(
                                 title: 'Client anniversary',
-                                subtitle: 'Yearly working relationship milestone',
+                                subtitle:
+                                    'Yearly working relationship milestone',
                                 value: settings.notifyClientAnniversary,
-                                onChanged: (v) => settingsProvider
-                                    .setNotifPref('clientAnniversary', v),
+                                onChanged: (v) => settingsProvider.setNotifPref(
+                                    'clientAnniversary', v),
                               ),
                             ],
                           ),
@@ -360,4 +361,3 @@ class _NotifTile extends StatelessWidget {
     );
   }
 }
-

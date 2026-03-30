@@ -217,7 +217,7 @@ class DashboardScreen extends StatelessWidget {
                                         Text('•', style: kStyleCaption),
                                         const SizedBox(width: 6),
                                         Text(_categoryEmoji(project.category),
-                                          style: kStyleCaption),
+                                            style: kStyleCaption),
                                       ],
                                     ),
                                   ],

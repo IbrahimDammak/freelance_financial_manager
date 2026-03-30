@@ -10,7 +10,8 @@ class ServiceCategoriesScreen extends StatefulWidget {
   const ServiceCategoriesScreen({super.key});
 
   @override
-  State<ServiceCategoriesScreen> createState() => _ServiceCategoriesScreenState();
+  State<ServiceCategoriesScreen> createState() =>
+      _ServiceCategoriesScreenState();
 }
 
 class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen> {
@@ -169,7 +170,8 @@ class _ServiceCategoriesScreenState extends State<ServiceCategoriesScreen> {
     final provider = context.read<SettingsProvider>();
     if (provider.serviceCategories.length <= 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You must have at least one service category.')),
+        const SnackBar(
+            content: Text('You must have at least one service category.')),
       );
       return;
     }

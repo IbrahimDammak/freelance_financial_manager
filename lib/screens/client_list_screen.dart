@@ -193,8 +193,8 @@ class _ClientListCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: categoryColor.withOpacity(0.10),
                             borderRadius: BorderRadius.circular(12),
-                            border:
-                                Border.all(color: categoryColor.withOpacity(0.25)),
+                            border: Border.all(
+                                color: categoryColor.withOpacity(0.25)),
                           ),
                           child: Text(client.primaryCategory,
                               style:

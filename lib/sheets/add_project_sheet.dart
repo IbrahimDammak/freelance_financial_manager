@@ -129,7 +129,8 @@ class _AddProjectSheetBodyState extends State<_AddProjectSheetBody> {
                   CategorySelector(
                     categories: categories,
                     selected: _selectedCategory,
-                    onSelected: (cat) => setState(() => _selectedCategory = cat),
+                    onSelected: (cat) =>
+                        setState(() => _selectedCategory = cat),
                     onAddCustom: (newCat) async {
                       await settingsProvider.addServiceCategory(newCat);
                       if (!mounted) return;

@@ -60,7 +60,7 @@ Future<void> main() async {
           create: (context) {
             final sp = context.read<SettingsProvider>();
             final dp = DataProvider(clientsBox, sp);
-            
+
             // Wire the notification reschedule callback
             sp.onNotifPrefChanged = () async {
               try {
@@ -73,7 +73,7 @@ Future<void> main() async {
                 // Silent fail
               }
             };
-            
+
             return dp;
           },
         ),

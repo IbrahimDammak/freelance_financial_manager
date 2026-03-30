@@ -95,11 +95,11 @@ class DataProvider extends ChangeNotifier {
     if (client == null) return;
     final project = _findProject(client, projectId);
     if (project == null) return;
-    
+
     final oldStatus = project.status;
     project.status = status;
     await _persist();
-    
+
     // Event: project status changed to 'completed'
     if (oldStatus != 'completed' && status == 'completed') {
       try {
@@ -111,7 +111,7 @@ class DataProvider extends ChangeNotifier {
         // Silent fail
       }
     }
-    
+
     await _syncNotifications();
   }
 
@@ -222,7 +222,8 @@ class DataProvider extends ChangeNotifier {
   Future<void> _syncNotifications() async {
     try {
       // Get settings from SettingsProvider via dynamic ref
-      final settings = _settingsProvider.settings as AppSettings? ?? AppSettings();
+      final settings =
+          _settingsProvider.settings as AppSettings? ?? AppSettings();
       await NotificationScheduler().rescheduleAll(
         clients: _clients,
         settings: settings,

@@ -232,4 +232,3 @@ class SettingsProvider extends ChangeNotifier {
     _settings.showMrrCollected = sections.contains('mrr_collected');
   }
 }
-

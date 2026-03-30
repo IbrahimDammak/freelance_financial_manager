@@ -22,7 +22,7 @@ class Client extends HiveObject {
   late String phone;
 
   @HiveField(5)
-    late String primaryCategory;
+  late String primaryCategory;
 
   @HiveField(6)
   late String avatar;

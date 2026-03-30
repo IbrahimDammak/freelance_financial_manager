@@ -71,10 +71,8 @@ class NotificationScheduler {
       // Idle project weekly check
       if (settings.notifyIdleProject) {
         final hasRecentSession = project.sessions.any((s) {
-          final sessionDate =
-              DateFormat('yyyy-MM-dd').parse(s.date);
-          final sevenDaysAgo =
-              DateTime.now().subtract(const Duration(days: 7));
+          final sessionDate = DateFormat('yyyy-MM-dd').parse(s.date);
+          final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
           return sessionDate.isAfter(sevenDaysAgo);
         });
         if (!hasRecentSession) {
@@ -86,7 +84,9 @@ class NotificationScheduler {
     }
 
     // No income mid-month alert
-    if (settings.notifyNoIncome && DateTime.now().day > 7 && DateTime.now().day <= 15) {
+    if (settings.notifyNoIncome &&
+        DateTime.now().day > 7 &&
+        DateTime.now().day <= 15) {
       final totalCollected = clients.fold<double>(
         0,
         (sum, c) =>
@@ -206,8 +206,8 @@ class NotificationScheduler {
           id: 1000 + idxOffset,
           title: 'Deadline in 7 days',
           body: '"${p.name}" is due in 7 days. Stay on track!',
-          scheduledDate:
-              DateTime(sevenDayWarning.year, sevenDayWarning.month, sevenDayWarning.day, 9, 0),
+          scheduledDate: DateTime(sevenDayWarning.year, sevenDayWarning.month,
+              sevenDayWarning.day, 9, 0),
           channel: 'fh_deadlines',
           channelName: 'Deadlines',
         );
@@ -222,8 +222,8 @@ class NotificationScheduler {
           id: 2000 + idxOffset,
           title: 'Deadline tomorrow',
           body: '"${p.name}" is due tomorrow at EOD.',
-          scheduledDate:
-              DateTime(oneDayWarning.year, oneDayWarning.month, oneDayWarning.day, 14, 0),
+          scheduledDate: DateTime(oneDayWarning.year, oneDayWarning.month,
+              oneDayWarning.day, 14, 0),
           channel: 'fh_deadlines',
           channelName: 'Deadlines',
         );
@@ -237,7 +237,8 @@ class NotificationScheduler {
           id: 3000 + idxOffset,
           title: 'Deadline TODAY',
           body: '"${p.name}" must be completed by end of day.',
-          scheduledDate: DateTime(deadline.year, deadline.month, deadline.day, 8, 0),
+          scheduledDate:
+              DateTime(deadline.year, deadline.month, deadline.day, 8, 0),
           channel: 'fh_deadlines',
           channelName: 'Deadlines',
         );
